@@ -18,17 +18,17 @@ will possibly restart the service **boinc-client**.
 
 # INSTALLATION
 
-- 1. Install **Perl**
+1. Install **Perl**
 
         sudo apt-get install perl
 
-- 2. Install the Perl-modules **Algorithm::Backoff::Fibonacci** and **Capture::Tiny**
+2. Install the Perl-modules **Algorithm::Backoff::Fibonacci** and **Capture::Tiny**
 
         sudo cpan Algorithm::Backoff::Fibonacci
         sudo cpan Capture::Tiny
 
-- 3. Copy **boinc\_watchdog.pl** into your home directory
-- 4. Add **boinc\_watchdog.pl** to the superuser crontab
+3. Copy **boinc\_watchdog.pl** into your home directory
+4. Add **boinc\_watchdog.pl** to the superuser crontab
 
         sudo crontab -e
 
@@ -38,7 +38,7 @@ will possibly restart the service **boinc-client**.
 
     This will tell the system to call **boinc\_watchdog.pl** every 30 minutes.
 
-- 5. Optional: Install f.e. **nullmailer** to get mail notifications about restarts and task aborts
+5. Optional: Install f.e. **nullmailer** to get mail notifications about restarts and task aborts
 
         sudo apt-get install nullmailer 
 
@@ -141,11 +141,11 @@ and will not abort them. (See also:
 
 # AUTHOR
 
-Günther Bayler <g.bayler@gmx.at>
+GÃ¼nther Bayler <g.bayler@gmx.at>
 
 # LICENSE AND COPYRIGHT
 
 This program is released under the
 [Artistic License 2.0](http://www.perlfoundation.org/artistic_license_2_0).
 
-Copyright (c) 2022 Günther Bayler <g.bayler@gmx.at>. All rights reserved.
+Copyright (c) 2022 GÃ¼nther Bayler <g.bayler@gmx.at>. All rights reserved.
