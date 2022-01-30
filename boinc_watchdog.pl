@@ -8,7 +8,7 @@ use Capture::Tiny qw/capture/;
 use File::Basename;
 
 # constants
-use version; my $VERSION = qv('0.0.1');
+use version; my $VERSION = qv('0.0.2');
 my $MIN_NR_ACTIVE_TASKS   = 1;
 my $MIN_CPU_USAGE         = 0.01;
 my $MIN_ELAPSED_TASK_TIME = 300;
@@ -16,9 +16,17 @@ my $BACKOFF_MAX_ATTEMPTS    = 5;
 my $BACKOFF_INITIAL_DELAY_1 = 1;
 my $BACKOFF_INITIAL_DELAY_2 = 2;
 
+my %BOINC_WORKING_DIR_FOR = (
+    'linux'   => '/usr/bin',
+    'MSWin32' => 'C:\Program Files\BOINC',
+);
+
 MAIN:
 {
     $0 = basename( $0 );
+
+    # change into BOINC working directory
+    chdir( $BOINC_WORKING_DIR_FOR{ $^O } );
 
     # read BOINC tasks into hash
     my $tasks_ref = get_boinc_tasks();
@@ -34,7 +42,12 @@ MAIN:
     # restart boinc-client if there are no active tasks
     if ($nr_active_tasks < $MIN_NR_ACTIVE_TASKS) {
         print "$0: Info: Too few ($nr_active_tasks) active tasks --> restarting boinc-client\n";
-        `/usr/sbin/service boinc-client restart`;
+        if ($^O eq 'linux') {
+            `/usr/sbin/service boinc-client restart`;
+        }
+        else {
+            print "$0: Info: Please restart BOINC client manually!\n";
+        }
         exit;
     }
 
@@ -77,7 +90,6 @@ sub get_boinc_tasks {
     );
 
     # call 'boinccmd --get_tasks' to find out infos about running boinc tasks
-    chdir('/usr/bin');
     my $command = 'boinccmd --get_tasks';
     my ($stdout, $stderr, $exit_code) = capture { system( $command ); };
     chomp $stdout;
@@ -131,7 +143,7 @@ boinc_watchdog.pl - Detect and restart a hanging BOINC client, abort hanging BOI
 
 =head1 VERSION
 
-This documentation refers to B<boinc_watchdog.pl> version B<0.0.1>.
+This documentation refers to B<boinc_watchdog.pl> version B<0.0.2>.
 
 =head1 USAGE
 
