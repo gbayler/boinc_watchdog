@@ -42,12 +42,7 @@ MAIN:
     # restart boinc-client if there are no active tasks
     if ($nr_active_tasks < $MIN_NR_ACTIVE_TASKS) {
         print "$0: Info: Too few ($nr_active_tasks) active tasks --> restarting boinc-client\n";
-        if ($^O eq 'linux') {
-            `/usr/sbin/service boinc-client restart`;
-        }
-        else {
-            print "$0: Info: Please restart BOINC client manually!\n";
-        }
+        restart_boinc_client();
         exit;
     }
 
@@ -68,10 +63,9 @@ MAIN:
 }
 
 # subroutines
-
-# ------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # get_boinc_tasks
-# ------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 sub get_boinc_tasks {
     my $state = 'init';
     my $name;
@@ -130,6 +124,23 @@ sub get_boinc_tasks {
 
     return (\%tasks);
 }
+
+#-------------------------------------------------------------------------------
+# restart_boinc_client
+#-------------------------------------------------------------------------------
+sub restart_boinc_client {
+    if ($^O eq 'linux') {
+        `/usr/sbin/service boinc-client restart`;
+    }
+    elsif ($^O eq 'MSWin32') {
+        `boinccmd --quit`;
+        `boincmgr --systray`;
+    }
+    else {
+        print "$0: Info: Please restart BOINC client manually!\n";
+    }
+}
+
 
 __END__
 
