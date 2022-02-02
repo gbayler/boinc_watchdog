@@ -51,6 +51,7 @@ MAIN:
         if (   $tasks_ref->{ $task }{'active_task_state'} eq 'UNINITIALIZED'
             && $tasks_ref->{ $task }{'scheduler state'}   eq 'preempted'
             && $tasks_ref->{ $task }{'app version num'}   eq '103'
+            && $tasks_ref->{ $task }{'PID'}               ne '0'
            ) {
             print "$0: Info: Task '$task': VM job unmanagable --> restarting boinc client\n";
             $nr_of_unmanageable_tasks++;
