@@ -9,7 +9,6 @@ use File::Basename;
 
 # constants
 use version; my $VERSION = qv('0.0.2');
-my $MIN_NR_ACTIVE_TASKS   = 1;
 my $MIN_CPU_USAGE         = 0.01;
 my $MIN_ELAPSED_TASK_TIME = 300;
 my $BACKOFF_MAX_ATTEMPTS    = 5;
@@ -31,21 +30,6 @@ MAIN:
     # read BOINC tasks into hash
     my $tasks_ref = get_boinc_tasks();
 
-    # count active tasks
-    my $nr_active_tasks = 0;
-    for my $task (sort keys %{ $tasks_ref }) {
-        if ($tasks_ref->{ $task }{'active_task_state'} eq 'EXECUTING') {
-            $nr_active_tasks++;
-        }
-    }
-
-    # restart boinc-client if there are no active tasks
-    if ($nr_active_tasks < $MIN_NR_ACTIVE_TASKS) {
-        print "$0: Info: Too few ($nr_active_tasks) active tasks --> restarting boinc-client\n";
-        restart_boinc_client();
-        exit;
-    }
-
     # find and abort hanging ("0 CPU") tasks
     for my $task (sort keys %{ $tasks_ref }) {
         my $active_task_state = $tasks_ref->{ $task }{'active_task_state'};
@@ -60,6 +44,19 @@ MAIN:
             `boinccmd --task $project_url $task abort`;
         }
     }
+
+    # restart boinc-client if there are "VM job unmanageable"-tasks
+    my $nr_of_unmanageable_tasks = 0;
+    for my $task (sort keys %{ $tasks_ref }) {
+        if (   $tasks_ref->{ $task }{'active_task_state'} eq 'UNINITIALIZED'
+            && $tasks_ref->{ $task }{'scheduler state'}   eq 'preempted'
+            && $tasks_ref->{ $task }{'app version num'}   eq '103'
+           ) {
+            print "$0: Info: Task '$task': VM job unmanagable --> restarting boinc client\n";
+            $nr_of_unmanageable_tasks++;
+        }
+    }
+    restart_boinc_client() if ($nr_of_unmanageable_tasks);
 }
 
 # subroutines
